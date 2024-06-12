@@ -1,4 +1,5 @@
 import { Search } from './Search'; 
+// import { getCurrentView } from '~/Common';
 
 const StateEnum = Object.freeze({
     IDLE: "idle",
@@ -6,16 +7,21 @@ const StateEnum = Object.freeze({
     PLAYBACK: "playback"
 });
 
+
+APP_KEY = "SmartStepApp";
+
 class SmartStep {
 
     constructor() {
         this.state = StateEnum.IDLE;
         this.lastSearch = null;
-        this.chatWindowID = '#chatbotWindow';
         this.subscribers = [];
         this.prefix = "SmartStep:";
         this.lastEvent = null;
+        this.currentView = null;
+        this.currentSubView = null;
         this.initHub();
+        // console.log("load app...")
     }
 
     subscribe(fn) {
@@ -30,6 +36,8 @@ class SmartStep {
         for (let fn of this.subscribers) {
             fn(this.session);
         }
+
+        this.saveAppState();
     }
 
     addEvent(event) {
@@ -59,6 +67,23 @@ class SmartStep {
         }
     }
 
+    loadAppState() {
+        // console.log("loading state...");
+        try {
+            let appState = JSON.parse(localStorage.getItem(APP_KEY));
+            console.log("appstate:", appState);
+            if (appState) {
+                this.session = appState.session;
+                this.state = appState.state;
+                this.currentView = appState.view;
+                this.currentSubView = appState.subview;
+                // console.log("state loaded.");
+            }
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
 
     initHub() {
         this.hub = { walkthroughs: [] };
@@ -73,6 +98,8 @@ class SmartStep {
                 this.hub.walkthroughs.push(key);
             }
         }
+
+        this.loadAppState();
     }
 
     loadWalkThrough(name) {
@@ -121,37 +148,82 @@ class SmartStep {
     }
 
     exportWalkthrough(walkthroughID) {
-        let walkthrough = this.loadWalkThrough(walkthroughID);
-        let 
+        let walkthrough = this.loadWalkThrough(walkthroughID); 
+    }
+
+    setCurrentSubView(view) {
+        console.log("set sub view", view);
+        this.currentSubView = view;
+        this.saveAppState();
+    }
+
+    getCurrentSubView() {
+        try {
+            return this.currentSubView;
+        }
+        catch {
+        }
+    }
+
+    setCurrentView(view) {
+        this.currentView = view;
+        this.saveAppState();
+    }
+
+    getCurrentView() {
+        try {
+            return this.currentView;
+        }
+        catch {
+        }
     }
 
     startRecoding() {
-        console.log("start recording.");
+        // console.log("start recording.");
 
         let session = {};
         session.name = "Session " + new Date().toLocaleString();
         session.events = [];
         // save session
-
         this.session = session;
         this.state = StateEnum.RECORDING;
+
+        this.saveAppState();
+        
+    }
+
+    saveAppState() {
+
+        let appState = {
+            session : this.session,
+            state : this.state,
+            view: this.getCurrentView(),
+            subview: this.getCurrentSubView(),
+        }
+        // console.log("save state:", appState);
+
+        localStorage.setItem(APP_KEY, JSON.stringify(appState));
+        // console.log("state saved.");
     }
 
     stopRecoding() {
-        console.log("stop recording.");
+        // console.log("stop recording.");
         // save session
         this.state = StateEnum.IDLE;
+        this.saveAppState();
     }
 
     startPlayback(walkthroughID, startStepIndex = 0) {
         this.loadWalkThrough(walkthroughID);
         this.state = StateEnum.PLAYBACK;
         this.session.stepIndex = startStepIndex;        
+        this.saveAppState();
     }
 
     stopPlayback() {
         this.session.stepIndex = 0;
         this.state = StateEnum.IDLE;
+        this.saveAppState();
     }
 
     getCurrentStep(){

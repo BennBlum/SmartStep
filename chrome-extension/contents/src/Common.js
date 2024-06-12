@@ -15,11 +15,9 @@ export function toggleChatbot(event) {
     
   }
 
-
 export function switchView(viewName, setView) {
   setView(viewName);
 }
-
 
 export const ViewNames = {
   WELCOME: 'Welcome',

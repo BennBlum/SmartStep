@@ -1,12 +1,5 @@
 console.log("content loaded...");
 
-// const driver = window.driver.js.driver;
-// const driverObj = driver({
-//     overlayColor: 'None'
-// });
-
-
-
 // const chatWindowID = '#chatbotWindow';
 const chatWindowID = 'PLASMO-CSUI';
 // const chatWindowID = 'plasmo-shadow-container';
@@ -29,7 +22,7 @@ const isChatWindow = (event) => {
 
 document.addEventListener('mouseover', (event) => {    
     if (isChatWindow(event)) {
-        console.log("widget mouseover");
+        // console.log("widget mouseover");
         mouseOverEvent = null
         return;
     }
@@ -39,14 +32,14 @@ document.addEventListener('mouseover', (event) => {
         event.target,
         mouveOverActionDetails,
     );
-    console.log("mouse event");
+    // console.log("mouse event");
     document.dispatchEvent(mouseEvent);
     mouseOverEvent = event;
 });
 
 document.addEventListener('click', (event) => {
     if (isChatWindow(event)) {
-        console.log("widget click");
+        // console.log("widget click");
         return;
     }
     const clickEvent = createCustomEvent(

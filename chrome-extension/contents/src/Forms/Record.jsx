@@ -95,8 +95,6 @@ export function Record({ switchSubView, setWalkthroughs }) {
         };
     }, [smartStepService]);
 
-
-
     const startRecordingClick = () => {
         setShowRecording(true);
         smartStepService.startRecoding();

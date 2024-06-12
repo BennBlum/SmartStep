@@ -2,6 +2,8 @@ import App from "./src/App";
 // import cssText from "data-text:~/contents/src/App.css"
 import indexCssText from "data-text:~/contents/src/index.css"
 import type { PlasmoCSConfig } from "plasmo"
+import { SmartStepContext } from './src/Contexts/SmartStepContext';
+import SmartStep from './src/Services/SmartStep';
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],
@@ -19,9 +21,11 @@ export const getStyle = () => {
 const EntryPoint = () => {
   return (
     <>
-    <App />
+      <SmartStepContext.Provider value={new SmartStep()}>
+        <App />
+      </SmartStepContext.Provider>
     </>
   )
 }
- 
+
 export default EntryPoint

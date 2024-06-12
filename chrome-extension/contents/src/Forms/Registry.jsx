@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Toolbar from "../Components/Common/Toolbar";
 import Walkthroughs from "../Components/Walkthroughs/Walkthroughs";
 import WalkthroughInfo from "../Components/Walkthroughs/WalkthroughInfo";
@@ -18,7 +18,9 @@ export function Registry({ switchMainView }) {
 
 
     const switchSubView = (newView) => {
+        console.log("switch", newView);
         switchView(newView, setSubview);
+        smartStepService.setCurrentSubView(newView);
     };
 
     const deleteWalkthrough = () => {
@@ -37,14 +39,27 @@ export function Registry({ switchMainView }) {
 
     const smartStepService = useContext(SmartStepContext);
 
+    useEffect(() => {
+        let subView = smartStepService.getCurrentSubView()
+        console.log("load sub:", subview)
+        if (subView != null) {
+            switchView(subView, setSubview);
+            console.log("load sub view:", subView);
+        }
+        else {
+            console.log("no sub view saved.");
+        }
+    }, []);
+
+
     return (<div>
         <Toolbar switchView={switchMainView} />
         {subview === RegistryViews.WALKTHROUGHS && <WalkthroughInfo switchSubView={switchSubView} walkthroughInfo={{ name, description }} />}
         {subview === RegistryViews.WALKTHROUGHS && <div>
             <div className="walkthrough-controls">
-            <p className="sub-foot">Number of Steps ({numSteps})</p>
-            <button className="std-btn" onClick={() => switchSubView(RegistryViews.PLAY)}>Start</button>        
-            </div>            
+                <p className="sub-foot">Number of Steps ({numSteps})</p>
+                <button className="std-btn" onClick={() => switchSubView(RegistryViews.PLAY)}>Start</button>
+            </div>
         </div>}
         {subview === RegistryViews.WALKTHROUGHS && <Walkthroughs onSelectWalkthrough={onSelectWalkthrough} />}
         {subview === RegistryViews.WALKTHROUGHS && <div className="walkthrough-controls">
@@ -54,6 +69,6 @@ export function Registry({ switchMainView }) {
         </div>}
         {subview === RegistryViews.RECORD && <Record switchSubView={switchSubView} setWalkthroughs={setWalkthroughs} />}
         {subview === RegistryViews.EDIT && <Edit switchSubView={switchSubView} />}
-        {subview === RegistryViews.PLAY && <Play switchSubView={switchSubView} onCancelView={RegistryViews.WALKTHROUGHS}/>}
+        {subview === RegistryViews.PLAY && <Play switchSubView={switchSubView} onCancelView={RegistryViews.WALKTHROUGHS} />}
     </div>)
 }
