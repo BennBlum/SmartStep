@@ -20,6 +20,7 @@ export function Registry({ switchMainView }) {
     const switchSubView = (newView) => {
         console.log("switch", newView);
         switchView(newView, setSubview);
+        smartStepService.cancelRecording();
         smartStepService.setCurrentSubView(newView);
     };
 
@@ -41,10 +42,8 @@ export function Registry({ switchMainView }) {
 
     useEffect(() => {
         let subView = smartStepService.getCurrentSubView()
-        console.log("load sub:", subview)
         if (subView != null) {
             switchView(subView, setSubview);
-            console.log("load sub view:", subView);
         }
         else {
             console.log("no sub view saved.");

@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { SmartStepContext } from '../Contexts/SmartStepContext';
 import { RegistryViews } from '../Common';
 import useEventListener from '../Hooks/useEventListerner';
+import { StateEnum } from '../Services/SmartStep';
 
 export function Record({ switchSubView, setWalkthroughs }) {
     const smartStepService = useContext(SmartStepContext);
@@ -22,7 +23,7 @@ export function Record({ switchSubView, setWalkthroughs }) {
     const [selectedOption, setSelectedOption] = useState('');
     const [optionSteps, setOptionSteps] = useState({});
 
-        const handleOptionChange = (e) => {
+    const handleOptionChange = (e) => {
         setSelectedOption(e.target.value);
         const steps = optionSteps[e.target.value] || { name: '', note: '' };
         setStepName(steps.name);
@@ -36,8 +37,8 @@ export function Record({ switchSubView, setWalkthroughs }) {
         const selectedIndex = options.findIndex((option, index) => index.toString() === selectedOption);
         smartStepService.session.events[selectedIndex].name = e.target.value;
     };
-    
-    const handleStepNoteChange = (e) => {        
+
+    const handleStepNoteChange = (e) => {
         setStepNote(e.target.value);
         const selectedIndex = options.findIndex((option, index) => index.toString() === selectedOption);
         smartStepService.session.events[selectedIndex].description = e.target.value;
@@ -55,6 +56,16 @@ export function Record({ switchSubView, setWalkthroughs }) {
     function refreshOptions() {
         const currentSession = smartStepService.session;
         setSession(currentSession);
+        console.log("cs:", currentSession);
+        console.log("showRecording", showRecording);
+        if (smartStepService.state == StateEnum.RECORDING) {
+            setShowRecording(true);
+        }
+        else 
+        {
+            setShowRecording(false);
+        }
+
         if (currentSession && currentSession.events) {
             setOptions(currentSession.events);
             if (currentSession.events.length > 0) {
@@ -79,6 +90,9 @@ export function Record({ switchSubView, setWalkthroughs }) {
     }, [stepName, stepNote]);
 
     useEffect(() => {
+
+        refreshOptions();
+
         const handleSessionChange = (newSession) => {
             setSession(newSession);
             if (newSession.events) {
@@ -93,6 +107,8 @@ export function Record({ switchSubView, setWalkthroughs }) {
         return () => {
             smartStepService.unsubscribe(handleSessionChange);
         };
+
+
     }, [smartStepService]);
 
     const startRecordingClick = () => {
@@ -130,15 +146,25 @@ export function Record({ switchSubView, setWalkthroughs }) {
         switchSubView(RegistryViews.WALKTHROUGHS);
     }
 
+    const onCancel = () => {
+        console.log("cancel...");
+        smartStepService.cancelRecording();
+        setShowRecording(false);
+        setOptions([]);
+        switchSubView(RegistryViews.WALKTHROUGHS);        
+    }
+
     const { dispatchDrawEvent } = useEventListener();
 
     return (
-        <div id="divRecord" className="record-container">
+        <div id="divRecord" className="record-container record-container-extended">
             <div className="controls">
                 <p className="sub-head">Record</p>
-                {!showRecording && <button className="std-btn" onClick={startRecordingClick}>Record</button>}
-                {showRecording && <button className="std-btn" onClick={stopRecordingClick}>Stop</button>}
-                <button id="btnCancel" className="std-btn" onClick={() => switchSubView(RegistryViews.WALKTHROUGHS)}>Cancel</button>
+                <div className="record-container-extended-btn">
+                    {!showRecording && <button className="std-btn" onClick={startRecordingClick}>Record</button>}
+                    {showRecording && <button className="std-btn" onClick={stopRecordingClick}>Stop</button>}
+                </div>
+                <button id="btnCancel" className="std-btn" onClick={onCancel}>Cancel</button>
             </div>
             {!showSave && showRecording && (
                 <div>

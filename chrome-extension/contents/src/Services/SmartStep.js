@@ -179,17 +179,26 @@ class SmartStep {
     }
 
     startRecoding() {
-        // console.log("start recording.");
+        console.log("start recording.");
 
         let session = {};
         session.name = "Session " + new Date().toLocaleString();
         session.events = [];
         // save session
         this.session = session;
+        console.log("service session:", this.session);
         this.state = StateEnum.RECORDING;
 
         this.saveAppState();
         
+    }
+
+    cancelRecording() {
+        console.log("cancel recording.");
+        this.session = {};
+        console.log("ccs:", this.session);
+        this.startPlayback = StateEnum.IDLE;
+        this.saveAppState();
     }
 
     saveAppState() {

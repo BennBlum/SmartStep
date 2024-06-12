@@ -138,6 +138,17 @@
   height: 400px;
 }
 
+.record-container-extended {
+  display: "flex" !important; 
+  justify-content: "space-between" !important; 
+  align-items: "center" !important;
+}
+
+.record-container-extended-btn {
+  display: "flex" !important;
+  gap: "10px" !important;
+}
+
 .record-create-label {
   margin-right: 10px;
 }
